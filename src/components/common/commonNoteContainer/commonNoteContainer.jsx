@@ -3,8 +3,11 @@ import enter from "../../../assets/icons/note.png";
 import deleted from "../../../assets/icons/delete.png";
 import defaultUser from "../../../assets/images/default-user.png";
 import { deleteCommentById } from "../../../redux/actions/comment";
+import { useSelector } from "react-redux";
 
-const CommonNoteContainer = ({ noteData, refreshCommentLoader }) => {
+const CommonNoteContainer = ({ noteData, refreshCommentLoader, owner }) => {
+  const currentUser = useSelector((state) => state.user.userData);
+  console.log(currentUser,"cccccccccccc")
   function handleDeleteComment() {
     deleteCommentById(noteData.commentID, (res) => {
       if (res?.status == 200) {
@@ -45,12 +48,14 @@ const CommonNoteContainer = ({ noteData, refreshCommentLoader }) => {
             </p>
           </div>
         </div>
-        <button
-          className="bg-transparent border-0"
-          onClick={handleDeleteComment}
-        >
-          <img src={deleted} width={25} />
-        </button>
+        {currentUser?.[0]?.user?.userID == noteData?.user?.userID && (
+          <button
+            className="bg-transparent border-0"
+            onClick={handleDeleteComment}
+          >
+            <img src={deleted} width={25} />
+          </button>
+        )}
       </div>
       <div className="mt-2">
         <p style={{ color: "#4F4F4F" }}>{noteData?.comment}</p>

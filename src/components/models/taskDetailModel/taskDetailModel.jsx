@@ -179,14 +179,14 @@ const TaskDetailModel = ({
                 <div className="text-cl-primary">
                   Main Task Title / Sub Task Title {/* need to discuss */}
                 </div>
-                {createTask && (
+                {/* {createTask && (
                   <button
                     className="bg-transparent border-0"
                     aria-label="Delete Task"
                   >
                     <img src={deleted} width={25} alt="Delete" />
                   </button>
-                )}
+                )} */}
               </div>
               <h5>
                 <b></b>
@@ -320,7 +320,7 @@ const TaskDetailModel = ({
                   {taskData?.description}
                 </textarea>
               </div>
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="text-cl-primary">Sub Tasks</div>
                   {createTask && (
@@ -355,7 +355,7 @@ const TaskDetailModel = ({
                     }}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="col-lg-4">
