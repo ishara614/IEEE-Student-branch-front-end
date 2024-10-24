@@ -31,7 +31,9 @@ const FinanceLanding = () => {
     const [pageLoading, setPageLoading] = useState(true);
     const [ouWallets, setOuWallets] = useState([]);
     const [myWallet, setMyWallet] = useState(null);
+    const [selectedWallet, setSelectedWallet] = useState(null);
     const [mainWallet, setMainWallet] = useState([]);
+    const [isAccountMode, setIsAccountMode] = useState(false);
 
 
     useEffect(() => {
@@ -83,6 +85,7 @@ const FinanceLanding = () => {
             getMyExomWallet((res) => {
                 if (res?.status == 200) {
                     setMyWallet(res?.data?.data)
+                    setSelectedWallet(res?.data?.data?.id);
                 }
             })
         }
@@ -104,6 +107,17 @@ const FinanceLanding = () => {
         setDisable(false)
         setEditable(false)
     }
+
+    const handleWalletChange = (event) => {
+        setSelectedWallet(event.target.value); // Update state with selected wallet id
+    };
+
+    const handleAccountChange = (event) => {
+        if(event.target.checked){
+            setSelectedWallet(accounts[0]?.id)
+        }
+        setIsAccountMode(event.target.checked);
+    };
 
     function editAccount(item) {
         setDisable(false)
@@ -135,28 +149,59 @@ const FinanceLanding = () => {
 
                     <div className='d-flex justify-content-between align-items-center gap-3'>
                         <div className='text-cl-primary'>Accounts</div>
-                        <div className='d-flex gap-3 flex-row'>
+                        <div className='d-flex gap-3 align-items-center  flex-row'>
                             {
                                 isFinanceAllPolicyAvailable && (
-                                    <div className=''>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected hidden={true}>Select a Wallet</option>
-                                            {
-                                                mainWallet?.map((item, index) => {
-                                                    return (
-                                                        <option key={index} value={item.id}>Student Branch</option>
-                                                    )
-                                                })
-                                            }
-                                            {
-                                                ouWallets?.map((item, index) => {
-                                                    return (
-                                                        <option key={index} value={item.id}>{item.ou.ouName}</option>
-                                                    )
-                                                })
-                                            }
-                                        </select>
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            value=""
+                                            onChange={handleAccountChange}
+                                        />
+                                        <label class="form-check-label" for="flexCheckDefault">
+                                            Account Mode
+                                        </label>
                                     </div>
+                                )
+                            }
+                            {
+                                isFinanceAllPolicyAvailable && (
+                                    isAccountMode ? (
+                                        <div className=''>
+                                            <select onChange={handleWalletChange} class="form-select" aria-label="Default select example">
+                                                <option selected hidden={true}>Select a Account</option>
+                                                {
+                                                    accounts?.map((item, index) => {
+                                                        return (
+                                                            <option key={index} value={item.id}>{item.account_number}</option>
+                                                        )
+                                                    })
+                                                }
+                                            </select>
+                                        </div>
+                                    ) : (
+                                        <div className=''>
+                                            <select onChange={handleWalletChange} class="form-select" aria-label="Default select example">
+                                                <option selected hidden={true}>Select a Wallet</option>
+                                                {
+                                                    mainWallet?.map((item, index) => {
+                                                        return (
+                                                            <option key={index} value={item.id}>Student Branch</option>
+                                                        )
+                                                    })
+                                                }
+                                                {
+                                                    ouWallets?.map((item, index) => {
+                                                        return (
+                                                            <option key={index} value={item.id}>{item.ou.ouName}</option>
+                                                        )
+                                                    })
+                                                }
+                                            </select>
+                                        </div>
+                                    )
+
                                 )
                             }
 
@@ -197,7 +242,7 @@ const FinanceLanding = () => {
                         }
 
                         <div className='flex-grow-1'>
-                            <FinanceChart />
+                            <FinanceChart account={isAccountMode} selectedWallet={selectedWallet} />
                         </div>
                     </div>
 
@@ -234,7 +279,7 @@ const FinanceLanding = () => {
                     </div>
 
                     <div className='mt-4'>
-                        <CommonFinanceTable transectionPermission={isFinanceTransactionPolicyAvailable} />
+                        <CommonFinanceTable account={isAccountMode} selectedWallet={selectedWallet} />
                     </div>
                 </div>
             )}

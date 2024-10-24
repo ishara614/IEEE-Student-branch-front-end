@@ -37,3 +37,40 @@ export const addouTransection = (body, callback) => {
         callback(error.response);
     }
 };
+
+
+
+export const getTransection = (watlet_id, search, page, type, start_date, end_date, callback) => {
+    const endpoint = `${import.meta.env.VITE_API_HOST}transaction/wallet/${watlet_id}?search=${search}&page=${page}&type=${type}&startDate=${start_date}&endDate=${end_date}`;
+
+    try {
+        http
+            .get(endpoint)
+            .then((response) => {
+                callback(response);
+            })
+            .catch((error) => {
+                callback(error.response);
+            });
+    } catch (error) {
+        callback(error.response);
+    }
+};
+
+
+export const getAccountTransection = (account_id, search, page, type, start_date, end_date, callback) => {
+    const endpoint = `${import.meta.env.VITE_API_HOST}transaction/account/${account_id}?search=${search}&page=${page}&type=${type}&startDate=${start_date}&endDate=${end_date}`;
+
+    try {
+        http
+            .get(endpoint)
+            .then((response) => {
+                callback(response);
+            })
+            .catch((error) => {
+                callback(error.response);
+            });
+    } catch (error) {
+        callback(error.response);
+    }
+};

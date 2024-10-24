@@ -1,12 +1,45 @@
 import React, { useEffect, useState } from 'react'
 import ReactApexChart from 'react-apexcharts'
+import { getAccountTransection, getTransection } from '../../../redux/actions/transection';
 
 
-const FinanceChart = () => {
+const FinanceChart = ({ account, selectedWallet }) => {
 
   const [income, setIncome] = useState();
   const [expence, setExpence] = useState()
-  const [time, setTime] = useState()
+  const [time, setTime] = useState();
+  const [transactionArray, SettransactionArray] = useState([]);
+
+  useEffect(() => {
+    if (account) {
+      getAccountTransection(
+        selectedWallet,
+        '',
+        0,
+        '',
+        '',
+        '',
+        (res) => {
+          if (res?.status == 200) {
+            SettransactionArray(res?.data?.data?.content)
+          }
+        })
+    } else {
+      getTransection(
+        selectedWallet,
+        '',
+        0,
+        '',
+        '',
+        '',
+        (res) => {
+          if (res?.status == 200) {
+            SettransactionArray(res?.data?.data?.content)
+          }
+        })
+    }
+
+  }, [selectedWallet, account])
 
   useEffect(() => {
     setIncome([31, 40, 28, 51, 42, 109, 100])

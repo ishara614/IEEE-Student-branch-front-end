@@ -85,9 +85,9 @@ const CommonTable = ({ tableHeading, tableData, finance, primary, viewAction, ed
                                                     return (
                                                         <td key={headIndex}>
                                                             <img
-                                                                src={item.type === "INCOME" ? financeIncome : financeExpence}
+                                                                src={item.type === "DEBIT" ? financeIncome : financeExpence}
                                                                 style={{ width: 24 }}
-                                                                alt={item.type === "INCOME" ? "Income" : "Expense"}
+                                                                alt={item.type === "DEBIT" ? "Debit" : "Credit"}
                                                             />
                                                         </td>
                                                     );
@@ -121,7 +121,7 @@ const CommonTable = ({ tableHeading, tableData, finance, primary, viewAction, ed
                                                 } else if (head.value === "amount") {
                                                     return (
                                                         <td key={headIndex}>
-                                                            {item.type === "INCOME" ? (
+                                                            {item.type === "DEBIT" ? (
                                                                 <div style={{ color: "#16DBAA" }}>+{item[head.value]}</div>
                                                             ) : (
                                                                 <div style={{ color: "#FE5C73" }}>-{item[head.value]}</div>

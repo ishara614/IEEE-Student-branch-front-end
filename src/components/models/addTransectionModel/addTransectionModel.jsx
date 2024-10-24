@@ -16,13 +16,15 @@ const AddTransectionModel = ({
   setTransectionModelShow,
   disabled,
   editable,
-  id,
+  transection,
 }) => {
   const [method, setMethod] = useState("Bank");
 
   const methodsAll = ["Bank", "Inside", "Budget"];
   const methods = ["Inside", "Budget"];
   const userData = useSelector((state) => state.user.userData);
+
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -58,11 +60,12 @@ const AddTransectionModel = ({
   const [isCheckboxTransferOuChecked, setIsCheckboxTransferOuChecked] = useState(false);
   const [myWallet, setMyWallet] = useState(null);
   const [ouWallets, setOuWallets] = useState([]);
+  const [viewTransection, setViewTransection] = useState(null);
   const navigate = useNavigate();
   const [isSbChecked, setIsSbChecked] = useState(false);
 
   useEffect(() => {
-    if (show) {
+    if (show && !disabled) {
       setIsCheckboxTransferOuChecked(false);
       setIsSbChecked(false);
       reset();
@@ -302,272 +305,312 @@ const AddTransectionModel = ({
             className="text-cl-primary"
             id="contained-modal-title-vcenter"
           >
-            {editable ? "Edit" : disabled ? "View" : ""}Add Transaction
+            {editable ? "Edit" : disabled ? "View" : "Add"} Transaction
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="d-flex flex-column">
-            {editable || disabled ? (
-              <h3></h3>
-            ) : (
-              <div
-                className="btn-group"
-                role="group"
-                aria-label="Basic example"
-              >
-                {(isFinanceAllPolicyAvailable ? methodsAll : methods).map((item, index) => {
-                  return (
-                    <button
-                      onClick={() => {
-                        setMethod(item);
-                      }}
-                      key={index}
-                      type="button"
-                      className={`btn ${item == method ? "bag-primary text-white" : "text-dark"
-                        }`}
-                    >
-                      {item}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-
-            <div className="mt-5">
-              <div className="">
-                <label
-                  for="exampleFormControlInput1"
-                  className="form-label text-dark"
-                >
-                  Title
-                </label>
-                <input
-                  type="text"
-                  name='title'
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  className={`form-control w-100 ${error.title ? "is-invalid" : ""}`}
-                  placeholder="title"
-                  disabled={disabled}
-                />
-                <div className="invalid-feedback">
-                  This field is required.
-                </div>
-              </div>
-            </div>
-
-            {method == "Bank" ? (
-              <div className="mt-3">
-                <label
-                  for="exampleFormControlInput1"
-                  className="form-label text-dark"
-                >
-                  Account
-                </label>
-                <select
-                  name='account_id'
-                  value={formData.account_id}
-                  onChange={handleInputChange}
-                  className={`form-control w-100 ${error.account_id ? "is-invalid" : ""}`}
-                  aria-label="Large select example"
-                  disabled={disabled}
-                >
-                  <option selected hidden={true}>Select Account</option>
-                  {
-                    accounts?.map((item, index) => {
-                      return (
-                        <option key={index} value={item?.id}>{item?.account_number + " - " + item?.bank_name}</option>
-                      )
-
-                    })
-                  }
-                </select>
-                <div className="invalid-feedback">
-                  This field is required.
-                </div>
-              </div>
-            ) : null}
-
-            {method == "Bank" ? (
-              <div class="form-check mt-3">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  value=""
-                  onChange={handleCheckboxChange}
-                />
-                <label class="form-check-label" for="flexCheckDefault">
-                  Transfer to SB
-                </label>
-              </div>
-            ) : null}
-
-
-
-            <div className="mt-3">
-              <label
-                for="exampleFormControlInput1"
-                className="form-label text-dark"
-              >
-                Type
-              </label>
-              <select
-                aria-label="Large select example"
-                disabled={disabled}
-                name='type'
-                value={formData.type}
-                onChange={handleInputChange}
-                className={`form-control w-100 ${error.type ? "is-invalid" : ""}`}
-              >
-                <option selected>Select Type</option>
-                <option value="CREDIT">Credit</option>
-                <option value="DEBIT">Debit</option>
-              </select>
-              <div className="invalid-feedback">
-                This field is required.
-              </div>
-            </div>
-
             {disabled ? (
-              <div className="mt-3">
-                <label
-                  for="exampleFormControlInput1"
-                  className="form-label text-dark"
-                >
-                  From Wallet
-                </label>
-                <select
-                  className="form-select w-100"
-                  disabled={disabled}
-                  aria-label="Large select example"
-                >
-                  <option selected>Select Wallet</option>
-                </select>
-              </div>
-            ) : null}
+              <>
 
-
-            {method == "Inside" && isFinanceAllPolicyAvailable ? (
-              <div class="form-check mt-3">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  value=""
-                  onChange={handleTransferOuCheckboxChange}
-                />
-                <label class="form-check-label" for="flexCheckDefault">
-                  Transfer to Ou Wallets
-                </label>
-              </div>
-            ) : null}
-
-            {(method == "Budget" || method == "Inside") && isFinanceAllPolicyAvailable &&
-              isCheckboxTransferOuChecked ? (
-              <div className="mt-3">
-                <label
-                  for="exampleFormControlInput1"
-                  className="form-label text-dark"
-                >
-                  To Wallet
-                </label>
-                <select
-                  name='to_wallet_id'
-                  value={formData.to_wallet_id}
-                  onChange={handleInputChange}
-                  className={`form-control w-100 ${error.to_wallet_id ? "is-invalid" : ""}`}
-                  aria-label="Large select example"
-                  disabled={disabled}
-                >
-                  <option selected hidden={true}>Select a Wallet</option>
-                  {
-                    ouWallets?.map((item, index) => {
-                      return (
-                        <option key={index} value={item.id}>{item.ou.ouName}</option>
-                      )
-                    })
-                  }
-                </select>
-                <div className="invalid-feedback">
-                  This field is required.
+                <div className="text-end">
+                  <h5>{transection?.referenceId}</h5>
                 </div>
-              </div>
-            ) : null}
-
-            {method == "Budget" ? (
-              <div className="mt-3">
-                <label
-                  for="exampleFormControlInput1"
-                  className="form-label text-dark"
-                >
-                  Budget proposal
-                </label>
-                <select
-                  className="form-select w-100"
-                  disabled={disabled}
-                  onClick={() => {
-                    setTransectionModelShow(false);
-                    handleShowProposalModelShow();
-                  }}
-                  aria-label="Large select example"
-                >
-                  <option selected>Select Proposal</option>
-                </select>
-              </div>
-            ) : null}
-
-            <div className="mt-3">
-              <div className="">
-                <label
-                  for="exampleFormControlInput1"
-                  className="form-label text-dark"
-                >
-                  Amount
-                </label>
-                <input
-                  type="number"
-                  name='amount'
-                  value={formData.amount}
-                  onChange={handleInputChange}
-                  className={`form-control w-100 ${error.amount ? "is-invalid" : ""}`}
-                  placeholder="amount"
-                  disabled={disabled}
-                />
-                <div className="invalid-feedback">
-                  This field is required.
+                <div className="row mt-3">
+                  <div className="col-4 fw-medium">Title</div>
+                  <div className="col-8 text-end">{transection?.title}</div>
                 </div>
-              </div>
-            </div>
 
-            <div className="mt-3">
-              <div class="form-group">
-                <label for="exampleFormControlTextarea1">Description</label>
-                <textarea
-                  name='description'
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className={`form-control w-100 ${error.description ? "is-invalid" : ""}`}
-                  rows="3"
-                  disabled={disabled}
-                ></textarea>
-                <div className="invalid-feedback">
-                  This field is required.
+                <div className="row mt-3">
+                  <div className="col-4 fw-medium">Description</div>
+                  <div className="col-8 text-end">{transection?.description}</div>
                 </div>
-              </div>
-            </div>
 
-            <div className="mt-3 w-100 text-center text-danger">{
-              error.other ? "Failed to add transaction" : ''
-            }</div>
+                <div className="row mt-3">
+                  <div className="col-4 fw-medium">Type</div>
+                  <div className="col-8 text-end">{transection?.type}</div>
+                </div>
+
+                <div className="row mt-3">
+                  <div className="col-4 fw-medium">Amount</div>
+                  <div className="col-8 text-end">{transection?.amount}</div>
+                </div>
+
+                {
+                  transection?.account ? (
+
+                    <div className="row mt-3">
+                      <div className="col-4 fw-medium">Combined Account</div>
+                      <div className="col-8 text-end">{transection?.account?.account_number} | {transection?.account?.bank_name}</div>
+                    </div>
+                  ) : null
+                }
+
+
+                {
+                  transection?.to_wallet ? (
+
+                    <div className="row mt-3">
+                      <div className="col-4 fw-medium">Combined Wallet</div>
+                      <div className="col-8 text-end">
+                        {transection?.to_wallet?.type === "MAIN" && "SB Wallet"}
+                        {transection?.to_wallet?.type === "EXCOM" && transection.to_wallet?.ou?.ouName}
+                        {transection?.to_wallet?.type === "PROJECT" && transection.to_wallet?.project?.projectName}
+                      </div>
+
+                    </div>
+                  ) : null
+                }
+
+
+
+
+              </>
+
+            ) : (
+              <>
+                <div
+                  className="btn-group"
+                  role="group"
+                  aria-label="Basic example"
+                >
+                  {(isFinanceAllPolicyAvailable ? methodsAll : methods).map((item, index) => {
+                    return (
+                      <button
+                        onClick={() => {
+                          setMethod(item);
+                        }}
+                        key={index}
+                        type="button"
+                        className={`btn ${item == method ? "bag-primary text-white" : "text-dark"
+                          }`}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-5">
+                  <div className="">
+                    <label
+                      for="exampleFormControlInput1"
+                      className="form-label text-dark"
+                    >
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      name='title'
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      className={`form-control w-100 ${error.title ? "is-invalid" : ""}`}
+                      placeholder="title"
+                      disabled={disabled}
+                    />
+                    <div className="invalid-feedback">
+                      This field is required.
+                    </div>
+                  </div>
+                </div>
+
+                {method == "Bank" ? (
+                  <div className="mt-3">
+                    <label
+                      for="exampleFormControlInput1"
+                      className="form-label text-dark"
+                    >
+                      Account
+                    </label>
+                    <select
+                      name='account_id'
+                      value={formData.account_id}
+                      onChange={handleInputChange}
+                      className={`form-control w-100 ${error.account_id ? "is-invalid" : ""}`}
+                      aria-label="Large select example"
+                      disabled={disabled}
+                    >
+                      <option selected hidden={true}>Select Account</option>
+                      {
+                        accounts?.map((item, index) => {
+                          return (
+                            <option key={index} value={item?.id}>{item?.account_number + " - " + item?.bank_name}</option>
+                          )
+
+                        })
+                      }
+                    </select>
+                    <div className="invalid-feedback">
+                      This field is required.
+                    </div>
+                  </div>
+                ) : null}
+
+                {method == "Bank" ? (
+                  <div class="form-check mt-3">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      onChange={handleCheckboxChange}
+                    />
+                    <label class="form-check-label" for="flexCheckDefault">
+                      Transfer to SB
+                    </label>
+                  </div>
+                ) : null}
+
+                <div className="mt-3">
+                  <label
+                    for="exampleFormControlInput1"
+                    className="form-label text-dark"
+                  >
+                    Type
+                  </label>
+                  <select
+                    aria-label="Large select example"
+                    disabled={disabled}
+                    name='type'
+                    value={formData.type}
+                    onChange={handleInputChange}
+                    className={`form-control w-100 ${error.type ? "is-invalid" : ""}`}
+                  >
+                    <option selected>Select Type</option>
+                    <option value="CREDIT">Credit</option>
+                    <option value="DEBIT">Debit</option>
+                  </select>
+                  <div className="invalid-feedback">
+                    This field is required.
+                  </div>
+                </div>
+
+                {method == "Inside" && isFinanceAllPolicyAvailable ? (
+                  <div class="form-check mt-3">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      onChange={handleTransferOuCheckboxChange}
+                    />
+                    <label class="form-check-label" for="flexCheckDefault">
+                      Transfer to Ou Wallets
+                    </label>
+                  </div>
+                ) : null}
+
+                {(method == "Budget" || method == "Inside") && isFinanceAllPolicyAvailable &&
+                  isCheckboxTransferOuChecked ? (
+                  <div className="mt-3">
+                    <label
+                      for="exampleFormControlInput1"
+                      className="form-label text-dark"
+                    >
+                      To Wallet
+                    </label>
+                    <select
+                      name='to_wallet_id'
+                      value={formData.to_wallet_id}
+                      onChange={handleInputChange}
+                      className={`form-control w-100 ${error.to_wallet_id ? "is-invalid" : ""}`}
+                      aria-label="Large select example"
+                      disabled={disabled}
+                    >
+                      <option selected hidden={true}>Select a Wallet</option>
+                      {
+                        ouWallets?.map((item, index) => {
+                          return (
+                            <option key={index} value={item.id}>{item.ou.ouName}</option>
+                          )
+                        })
+                      }
+                    </select>
+                    <div className="invalid-feedback">
+                      This field is required.
+                    </div>
+                  </div>
+                ) : null}
+
+                {method == "Budget" ? (
+                  <div className="mt-3">
+                    <label
+                      for="exampleFormControlInput1"
+                      className="form-label text-dark"
+                    >
+                      Budget proposal
+                    </label>
+                    <select
+                      className="form-select w-100"
+                      disabled={disabled}
+                      onClick={() => {
+                        setTransectionModelShow(false);
+                        handleShowProposalModelShow();
+                      }}
+                      aria-label="Large select example"
+                    >
+                      <option selected>Select Proposal</option>
+                    </select>
+                  </div>
+                ) : null}
+
+                <div className="mt-3">
+                  <div className="">
+                    <label
+                      for="exampleFormControlInput1"
+                      className="form-label text-dark"
+                    >
+                      Amount
+                    </label>
+                    <input
+                      type="number"
+                      name='amount'
+                      value={formData.amount}
+                      onChange={handleInputChange}
+                      className={`form-control w-100 ${error.amount ? "is-invalid" : ""}`}
+                      placeholder="amount"
+                      disabled={disabled}
+                    />
+                    <div className="invalid-feedback">
+                      This field is required.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <div class="form-group">
+                    <label for="exampleFormControlTextarea1">Description</label>
+                    <textarea
+                      name='description'
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      className={`form-control w-100 ${error.description ? "is-invalid" : ""}`}
+                      rows="3"
+                      disabled={disabled}
+                    ></textarea>
+                    <div className="invalid-feedback">
+                      This field is required.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 w-100 text-center text-danger">{
+                  error.other ? "Failed to add transaction" : ''
+                }</div>
+              </>
+            )}
           </div>
         </Modal.Body>
         <Modal.Footer className="d-flex justify-content-end">
           <div>
             <CommonButton onClick={onHide} close={true} text={"Close"} />
           </div>
-          <div>
-            <CommonButton onClick={submit} load={loading} text={"Add"} />
-          </div>
+          {
+            disabled ? null : (
+              <div>
+                <CommonButton onClick={submit} load={loading} text={"Add"} />
+              </div>
+            )
+          }
+
         </Modal.Footer>
       </Modal>
 
