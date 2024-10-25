@@ -96,6 +96,7 @@ export default function CommonNotesArea({
         >
           {commentList?.map((note, index) => (
             <div className="p-2 w-100" key={index}>
+
               <CommonNoteContainer
                 noteData={note}
                 refreshCommentLoader={() => setRefreshNotes(refreshNotes + 1)}
