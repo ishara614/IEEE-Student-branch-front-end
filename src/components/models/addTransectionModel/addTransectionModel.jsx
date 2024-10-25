@@ -69,6 +69,7 @@ const AddTransectionModel = ({
 
   useEffect(() => {
     if (show && !disabled) {
+      setLoading(false);
       setIsCheckboxTransferOuChecked(false);
       setIsSbChecked(false);
       reset();
