@@ -23,6 +23,8 @@ import {
 } from "../../../redux/actions/comment";
 
 import CommonNotesArea from "../../common/commonNoteArea/commonNoteArea";
+import CommonEditor from "../../common/CommonEditor/CommonEditor";
+
 
 const TaskDetailModel = ({
   onHide,
@@ -58,23 +60,44 @@ const TaskDetailModel = ({
 
   const [formData, setFormData] = useState(null);
   const [taskData, setTaskData] = useState(null);
+
+  const [description, setDescription] = useState(null);
+
   const [assigneesArray, setAssigneesArray] = useState(null);
 
   useEffect(() => {
     if (firstTimeFormDataLoaded && show) {
       console.log("inside edit task");
-      editTask(taskData.taskId, formData, (res) => {
-        if (res?.status == 200) {
-          let task = res?.data?.data;
-          setTaskData(task);
-          console.log("succussfulyy edited");
-        } else {
-          console.warn("Error in Updatin edited data");
-        }
-      });
+      saveTask(formData);
     }
     setFirstTimeFormDataLoaded(true);
   }, [formData]);
+
+
+  function saveTask(data) {
+    editTask(taskData.taskId, data, (res) => {
+      if (res?.status == 200) {
+        let task = res?.data?.data;
+        setTaskData(task);
+        console.log("succussfulyy edited");
+      } else {
+        console.warn("Error in Updatin edited data");
+      }
+    });
+  }
+
+  function savedescription(html) {
+    console.warn(description,"dessssssss")
+    const data = {
+      task_name: formData?.task_name,
+      start_date: formData?.start_date,
+      end_date: formData?.end_date,
+      priority: formData?.priority,
+      status: formData?.status,
+      description: html,
+    };
+    saveTask(data)
+  }
 
   useEffect(() => {
     setPageLoading(true);
@@ -176,9 +199,9 @@ const TaskDetailModel = ({
           <div className="col-lg-8">
             <div>
               <div className="mb-3 d-flex justify-content-between align-items-center">
-                <div className="text-cl-primary">
-                  Main Task Title / Sub Task Title {/* need to discuss */}
-                </div>
+                {/* <div className="text-cl-primary">
+                  Main Task Title / Sub Task Title 
+                </div> */}
                 {/* {createTask && (
                   <button
                     className="bg-transparent border-0"
@@ -311,14 +334,21 @@ const TaskDetailModel = ({
               </div>
               <div className="mb-3">
                 <div className="text-cl-primary">Description</div>
-                <textarea
+
+                <CommonEditor
+                  html={taskData?.description}
+                  updateProject={savedescription}
+                  setHtml={setDescription}
+                />
+
+                {/* <textarea
                   name="description"
                   className="form-control"
                   onChange={handleChange}
                   rows="3"
                 >
                   {taskData?.description}
-                </textarea>
+                </textarea> */}
               </div>
               {/* <div className="mt-4">
                 <div className="d-flex justify-content-between align-items-center">

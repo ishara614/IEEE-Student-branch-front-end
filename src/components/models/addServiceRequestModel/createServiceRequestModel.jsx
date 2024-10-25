@@ -27,7 +27,7 @@ const CreateServiceRequestModel = ({
     email: false,
     remarks: false,
   });
-  
+
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return dateString.split("T")[0];
@@ -62,6 +62,37 @@ const CreateServiceRequestModel = ({
   };
 
   const handleSubmit = () => {
+
+    const requiredFields = [
+      "due_date",
+      "email",
+    ];
+
+    const error = {};
+    let hasError = false;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    requiredFields.forEach((field) => {
+      if (!formData[field]) {
+        error[field] = true;
+        hasError = true;
+      }
+    });
+
+    if (formData.email && !emailRegex.test(formData.email)) {
+      error.email = "Invalid email format";
+      hasError = true;
+    }
+
+    console.log('errorrr', hasError)
+
+
+    if (hasError) {
+      setErrors(error);
+      return;
+    }
+
     if (edit) {
       createServiceLetterRequest(formData, (res) => {
         if (res?.status == 200) {
@@ -106,15 +137,24 @@ const CreateServiceRequestModel = ({
                 Due Date
               </label>
               <div>
+
                 <input
-                  className="form-control"
                   type="date"
-                  id="due_date"
                   name="due_date"
+                  min={new Date().toISOString().split("T")[0]}
                   value={formData.due_date}
                   onChange={handleInputChange}
+                  className={`form-select ${
+                    errors.due_date ? "is-invalid" : ""
+                  }`}
+                  id="exampleFormControlInput1"
+                  placeholder="account number"
+                  required
                   disabled={view ? true : false}
                 />
+                {errors.due_date && (
+              <div className="invalid-feedback">This field is required.</div>
+            )}
               </div>
             </div>
 
@@ -124,15 +164,24 @@ const CreateServiceRequestModel = ({
               </label>
               <div>
                 <input
-                  className="form-control"
-                  type="text"
+                  type="email"
                   id="email"
                   name="email"
                   placeholder="name@example.com"
+                  className={`form-select ${
+                    errors.email ? "is-invalid" : ""
+                  }`}
                   value={formData.email}
                   onChange={handleInputChange}
                   disabled={view ? true : false}
                 />
+                  {errors.email && (
+              <div className="invalid-feedback">
+                {errors.email === "Invalid email format"
+                  ? "Please enter a valid email address."
+                  : "This field is required."}
+              </div>
+            )}
               </div>
             </div>
           </div>

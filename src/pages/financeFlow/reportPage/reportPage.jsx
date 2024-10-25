@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux';
 import CommonLoader from '../../../components/common/commonLoader/commonLoader';
 import { useNavigate } from 'react-router-dom';
 import { PolicyValidate } from '../../../utils/valitations/Valitation';
+import { getMyExomWallet } from '../../../redux/actions/wallet';
+import { getTransection } from '../../../redux/actions/transection';
 
 
 
@@ -14,7 +16,13 @@ const ReportPage = () => {
     const { toPDF, targetRef } = usePDF({ filename: 'report.pdf' });
     const userData = useSelector((state) => state.user.userData);
     const [pageLoading, setPageLoading] = useState(true);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [myWallet, setMyWallet] = useState(null);
+    const [transactionArray, SettransactionArray] = useState([]);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [startDatenormal, setStartDatenormal] = useState('');
+    const [endDatenormal, setEndDatenormal] = useState('');
 
     useEffect(() => {
         setPageLoading(true)
@@ -23,6 +31,11 @@ const ReportPage = () => {
             const isFinanceTransectionAvailable = PolicyValidate(userData, "FINANCE_TRANSACTION");
             if (isFinanceAvailable && isFinanceTransectionAvailable) {
                 setPageLoading(false);
+                getMyExomWallet((res) => {
+                    if (res?.status == 200) {
+                        setMyWallet(res?.data?.data)
+                    }
+                })
             } else {
                 navigate('/dashboard')
 
@@ -31,7 +44,49 @@ const ReportPage = () => {
     }, [userData])
 
 
+    useEffect(() => {
+        getTransection(
+            myWallet?.id,
+            '',
+            0,
+            '',
+            startDate,
+            endDate,
+            (res) => {
+                if (res?.status == 200) {
+                    SettransactionArray(res?.data?.data?.content)
+                }
+            })
+
+
+
+
+    }, [myWallet, endDate, startDate])
+
+    const formatDateToISO = (date) => {
+        if (!date) return '';
+        const isoDate = new Date(date).toISOString();
+        // Remove the milliseconds part (optional)
+        return isoDate.split('.')[0];
+      };
+
+
+    const handleStartDateChange = (date) => {
+        setStartDatenormal(date);
+        setStartDate(formatDateToISO(date))
+    }
+
+    const handleEndDateChange = (date) => {
+        setEndDatenormal(date);
+        setEndDate(formatDateToISO(date))
+    }
+
+
     const tableHeading = [
+        {
+            label: "Reference ID",
+            value: "referenceId"
+        },
         {
             label: "Date",
             value: "date"
@@ -50,71 +105,6 @@ const ReportPage = () => {
         },
     ]
 
-    const tableData = [
-        {
-            id: "P001",
-            title: "UX Strategy",
-            description: "Create and send unlimited professional invoices for free. Use our unique features to collect payments faster.",
-            date: "2022/12/11",
-            type: "CREDIT",
-            amount: "2500.00",
-        },
-        {
-            id: "P001",
-            title: "UX Strategy",
-            description: "Create and send unlimited professional invoices for free. Use our unique features to collect payments faster.",
-            date: "2022/12/11",
-            type: "DEBIT",
-            amount: "2500.00",
-        }, {
-            id: "P001",
-            title: "UX Strategy",
-            description: "Create and send unlimited professional invoices for free. Use our unique features to collect payments faster.",
-            date: "2022/12/11",
-            type: "CREDIT",
-            amount: "2500.00",
-        },
-        {
-            id: "P001",
-            title: "UX Strategy",
-            description: "Create and send unlimited professional invoices for free. Use our unique features to collect payments faster.",
-            date: "2022/12/11",
-            type: "DEBIT",
-            amount: "2500.00",
-        }, {
-            id: "P001",
-            title: "UX Strategy",
-            description: "Create and send unlimited professional invoices for free. Use our unique features to collect payments faster.",
-            date: "2022/12/11",
-            type: "CREDIT",
-            amount: "2500.00",
-        },
-        {
-            id: "P001",
-            title: "UX Strategy",
-            description: "Create and send unlimited professional invoices for free. Use our unique features to collect payments faster.",
-            date: "2022/12/11",
-            type: "DEBIT",
-            amount: "2500.00",
-        }, {
-            id: "P001",
-            title: "UX Strategy",
-            description: "Create and send unlimited professional invoices for free. Use our unique features to collect payments faster.",
-            date: "2022/12/11",
-            type: "CREDIT",
-            amount: "2500.00",
-        },
-        {
-            id: "P001",
-            title: "UX Strategy",
-            description: "Create and send unlimited professional invoices for free. Use our unique features to collect payments faster.",
-            date: "2022/12/11",
-            type: "DEBIT",
-            amount: "2500.00",
-        }
-
-
-    ]
 
 
     return (
@@ -130,22 +120,37 @@ const ReportPage = () => {
                             <div className='row align-items-center gap-3 justify-content-center'>
                                 <div className='col-md-5'>
                                     <div className="input-group input-group-sm">
-                                        <input type="date" className="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" />
+                                        <input
+                                            type="date"
+                                            className="form-control"
+                                            value={startDatenormal}
+                                            onChange={(e) => handleStartDateChange(e.target.value)}  // Update start date state
+                                            aria-label="Sizing example input"
+                                            aria-describedby="inputGroup-sizing-sm"
+                                        />
                                     </div>
                                 </div>
 
                                 <div className='col-md-1 text-center'>
                                     to
                                 </div>
+
                                 <div className='col-md-5'>
                                     <div className="input-group input-group-sm">
-                                        <input type="date" className="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" />
+                                        <input
+                                            type="date"
+                                            className="form-control"
+                                            value={endDatenormal}
+                                            onChange={(e) => handleEndDateChange(e.target.value)}  // Update end date state
+                                            aria-label="Sizing example input"
+                                            aria-describedby="inputGroup-sizing-sm"
+                                        />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className='mt-5 d-flex justify-content-between flex-wrap flex-md-row-reverse gap-4'>
+                        {/* <div className='mt-5 d-flex justify-content-between flex-wrap flex-md-row-reverse gap-4'>
                             <div className='d-flex flex-column justify-content-between'>
                                 <img src={logo} style={{ width: 200 }} />
                             </div>
@@ -167,13 +172,13 @@ const ReportPage = () => {
                                 </div>
                             </div>
 
-                        </div>
+                        </div> */}
 
                         <div className='mt-4'>
-                            <CommonTable tableHeading={tableHeading} finance={true} report={true} tableData={tableData} primary={true} loading={false} />
+                            <CommonTable tableHeading={tableHeading} finance={true} report={true} tableData={transactionArray} primary={true} loading={false} />
                         </div>
 
-                        <div className='mt-5 d-flex justify-content-end'>
+                        {/* <div className='mt-5 d-flex justify-content-end'>
                             <div className='flex flex-column' style={{ minWidth: 320 }}>
                                 <div className='d-flex  mt-2 gap-5 justify-content-between'>
                                     <div className='text-black-50'>Initial Amount</div>
@@ -194,7 +199,7 @@ const ReportPage = () => {
                                 </div>
                                 <hr className='text-black-50' />
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </>
             )}

@@ -151,9 +151,11 @@ function ExecutiveCommitteePage() {
 
             <div className="text-cl-primary mt-4">Tasks</div>
             <div className="d-flex mt-3 justify-content-between align-items-center gap-4 flex-wrap">
-              <div onClick={() => openTaskDetailModel("Pie Chart")}>
+              {console.log("taskCount", taskCount)}
+              {(taskCount.todo > 0 || taskCount.progress > 0 || taskCount.complete > 0) &&   <div onClick={() => openTaskDetailModel("Pie Chart")}>
                 <CommonPieChart todo={taskCount.todo} progress={taskCount.progress} complete={taskCount.complete} />
-              </div>
+              </div>}
+            
               <div className="d-flex justify-content-between flex-wrap flex-grow-1 gap-4">
                 <div>
                   <CommonStatusCountCard type={"TODO"} count={taskCount.todo} />

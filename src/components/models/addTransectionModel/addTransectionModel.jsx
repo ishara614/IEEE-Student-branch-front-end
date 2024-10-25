@@ -7,7 +7,7 @@ import { addAccountTransection, addouTransection } from "../../../redux/actions/
 import { useSelector } from 'react-redux';
 import { PolicyValidate } from "../../../utils/valitations/Valitation";
 import { useNavigate } from "react-router-dom";
-import { getAllOuWallet, getMainWallet, getMyExomWallet } from "../../../redux/actions/wallet";
+import { getAllOuWallet, getMainWallet, getMyExomWallet, getProjectWalletList } from "../../../redux/actions/wallet";
 
 
 const AddTransectionModel = ({
@@ -17,6 +17,8 @@ const AddTransectionModel = ({
   disabled,
   editable,
   transection,
+  refresh,
+  setRefresh
 }) => {
   const [method, setMethod] = useState("Bank");
 
@@ -60,18 +62,21 @@ const AddTransectionModel = ({
   const [isCheckboxTransferOuChecked, setIsCheckboxTransferOuChecked] = useState(false);
   const [myWallet, setMyWallet] = useState(null);
   const [ouWallets, setOuWallets] = useState([]);
+  const [ProjectWallets, setProjectWallets] = useState([]);
   const [viewTransection, setViewTransection] = useState(null);
   const navigate = useNavigate();
   const [isSbChecked, setIsSbChecked] = useState(false);
 
   useEffect(() => {
     if (show && !disabled) {
+      setLoading(false);
       setIsCheckboxTransferOuChecked(false);
       setIsSbChecked(false);
       reset();
       getMyExomWallet((res) => {
         if (res?.status == 200) {
-          setMyWallet(res?.data?.data)
+          setMyWallet(res?.data?.data);
+          ProjectWalletList(res?.data?.data?.ou?.ouID ? res?.data?.data?.ou?.ouID : 1)
         }
       })
       if (isFinanceAllPolicyAvailable) {
@@ -90,10 +95,21 @@ const AddTransectionModel = ({
             setOuWallets(res?.data?.data)
           }
         })
+
+
       }
 
     }
   }, [show, isFinanceAllPolicyAvailable]);
+
+
+  function ProjectWalletList(id) {
+    getProjectWalletList(id, (res) => {
+      if (res?.status == 200) {
+        setProjectWallets(res.data.data)
+      }
+    })
+  }
 
 
   useEffect(() => {
@@ -174,8 +190,67 @@ const AddTransectionModel = ({
       addBankTransection();
     } else if (method == "Inside") {
       addInsideTransection();
+    } else {
+      addProjectTransection();
     }
 
+  }
+
+
+  function addProjectTransection() {
+    setError({
+      title: false,
+      description: false,
+      type: false,
+      amount: false,
+      from_wallet_id: false,
+      to_wallet_id: false,
+      wallet_id: false,
+      account_id: false,
+      other: false
+    });
+
+
+
+    if (
+      !formData.title ||
+      !formData.type ||
+      !formData.amount ||
+      !formData.description ||
+      !formData.to_wallet_id
+    ) {
+      setError({
+        ...error,
+        title: !formData.title,
+        description: !formData.description,
+        type: !formData.type,
+        amount: !formData.amount,
+        to_wallet_id: !formData.to_wallet_id
+      });
+      return;
+    }
+    const data = {
+      "title": formData.title,
+      "description": formData.description,
+      "type": formData.type,
+      "amount": formData.amount,
+      "wallet_id": myWallet?.id,
+      "to_wallet_id": formData.to_wallet_id
+    }
+
+    addouTransection(data, (res) => {
+      if (res.status == 201) {
+        setLoading(false);
+        setRefresh(refresh + 1)
+        onHide();
+      } else {
+        setLoading(false);
+        setError({
+          ...error,
+          other: true,
+        });
+      }
+    })
   }
 
 
@@ -223,6 +298,7 @@ const AddTransectionModel = ({
     addouTransection(data, (res) => {
       if (res.status == 201) {
         setLoading(false);
+        setRefresh(refresh + 1)
         onHide();
       } else {
         setLoading(false);
@@ -276,6 +352,7 @@ const AddTransectionModel = ({
     addAccountTransection(data, (res) => {
       if (res.status == 201) {
         setLoading(false);
+        setRefresh(refresh + 1)
         onHide();
       } else {
         setLoading(false);
@@ -536,18 +613,24 @@ const AddTransectionModel = ({
                       for="exampleFormControlInput1"
                       className="form-label text-dark"
                     >
-                      Budget proposal
+                      Project Wallet
                     </label>
                     <select
-                      className="form-select w-100"
-                      disabled={disabled}
-                      onClick={() => {
-                        setTransectionModelShow(false);
-                        handleShowProposalModelShow();
-                      }}
+                      name='to_wallet_id'
+                      value={formData.to_wallet_id}
+                      onChange={handleInputChange}
+                      className={`form-control w-100 ${error.to_wallet_id ? "is-invalid" : ""}`}
                       aria-label="Large select example"
+                      disabled={disabled}
                     >
-                      <option selected>Select Proposal</option>
+                      <option selected hidden={true}>Select a Wallet</option>
+                      {
+                        ProjectWallets?.map((item, index) => {
+                          return (
+                            <option key={index} value={item.id}>{item.project.projectName}</option>
+                          )
+                        })
+                      }
                     </select>
                   </div>
                 ) : null}

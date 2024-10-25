@@ -6,7 +6,7 @@ import AddTransectionModel from '../../models/addTransectionModel/addTransection
 import { getAccountTransection, getTransection } from '../../../redux/actions/transection';
 
 
-const CommonFinanceTable = ({ selectedWallet, account }) => {
+const CommonFinanceTable = ({ selectedWallet, account, refresh }) => {
 
   const [selectedType, setSelectedType] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +46,21 @@ const CommonFinanceTable = ({ selectedWallet, account }) => {
         '',
         (res) => {
           if (res?.status == 200) {
-            SettransactionArray(res?.data?.data?.content)
+            const formattedTransactions = res?.data?.data?.content.map(transaction => {
+              return {
+                ...transaction,
+                formattedDateTime: new Date(transaction.date).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: 'short',   // Jan, Feb, etc.
+                  day: 'numeric',    // 1, 2, 3, etc.
+                  hour: '2-digit',   // 12-hour format with leading zeros
+                  minute: '2-digit', // Minute with leading zeros
+                  second: '2-digit', // Second with leading zeros (optional)
+                  hour12: true       // Set to `true` for 12-hour format (AM/PM), `false` for 24-hour format
+                })
+              }
+            });
+            SettransactionArray(formattedTransactions)
             setTotalPage(res?.data?.data?.totalPages)
           }
         })
@@ -60,13 +74,27 @@ const CommonFinanceTable = ({ selectedWallet, account }) => {
         '',
         (res) => {
           if (res?.status == 200) {
-            SettransactionArray(res?.data?.data?.content)
+            const formattedTransactions = res?.data?.data?.content.map(transaction => {
+              return {
+                ...transaction,
+                formattedDateTime: new Date(transaction.date).toLocaleString('en-US', {
+                  year: 'numeric',
+                  month: 'short',   // Jan, Feb, etc.
+                  day: 'numeric',    // 1, 2, 3, etc.
+                  hour: '2-digit',   // 12-hour format with leading zeros
+                  minute: '2-digit', // Minute with leading zeros
+                  second: '2-digit', // Second with leading zeros (optional)
+                  hour12: true       // Set to `true` for 12-hour format (AM/PM), `false` for 24-hour format
+                })
+              }
+            });
+            SettransactionArray(formattedTransactions)
             setTotalPage(res?.data?.data?.totalPages)
           }
         })
     }
 
-  }, [selectedWallet, selectedType, search, account])
+  }, [selectedWallet, selectedType, search, account, refresh])
 
 
   const typeDetail = [
@@ -103,7 +131,7 @@ const CommonFinanceTable = ({ selectedWallet, account }) => {
     },
     {
       label: "Date",
-      value: "date"
+      value: "formattedDateTime"
     },
     {
       label: "Balance",

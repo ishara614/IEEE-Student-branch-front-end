@@ -5,19 +5,13 @@ import CopyToClipboardIcon from "../../../assets/icons/copyToClipboardWhite.png"
 import OpenNewTabIcon from "../../../assets/icons/externalLinkWhite.png";
 import BgImage from "../../../assets/images/event_default_bg.png";
 import ViewEventModal from '../../../components/models/viewEventModel/viewEventModel'; // Import the correct ViewEventModal
-import EditEventModal from '../../../components/models/editEventModel/editEventModel'; // Import the correct EditEventModal
+import EditEventModal from '../../../components/models/editEventModel/editEventModel'; 
+import EventIcon from '../../../assets/icons/overtime.png';
 
-// const truncateText = (text, maxWords) => {
-//     const words = text.split(' ');
-//     if (words.length > maxWords) {
-//         return words.slice(0, maxWords).join(' ') + '...';
-//     }
-//     return text;
-// };
 
 const truncateText = (text, maxWords) => {
     if (!text) {
-        return ''; // Return an empty string if text is null or undefined
+        return ''; 
     }
     
     const words = text.split(' ');
@@ -32,7 +26,7 @@ const truncateText = (text, maxWords) => {
 const CommonEventCard = ({ eventDetails, editable, editAction, viewAction }) => {
     const truncatedDescription = truncateText(eventDetails.description, 20);
 
-    // State for modal visibility and selected event
+    
     const [viewEventModalShow, setViewEventModalShow] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null); // State for selected event
     const [editEventModalShow, setEditEventModalShow] = useState(false);
@@ -43,8 +37,8 @@ const CommonEventCard = ({ eventDetails, editable, editAction, viewAction }) => 
 
     const handleShowViewEventModal = (event) => {
         if (event) {
-            setSelectedEvent(event); // Set selected event data
-            setViewEventModalShow(true); // Show the modal
+            setSelectedEvent(event); 
+            setViewEventModalShow(true); 
         } else {
             console.error("No event data available");
         }
@@ -55,13 +49,23 @@ const CommonEventCard = ({ eventDetails, editable, editAction, viewAction }) => 
         setEditEventModalShow(true);
     };
 
+    const formattedDate = (isoDate) => {
+        const dateObj = new Date(isoDate);
+      
+        return dateObj.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+      };
+
     return (
         <div className="card m-0 p-0 shadow-sm"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className="card-header fw-bold text-light bg-dark">
-                {eventDetails.eventName}
+                {eventDetails.projectName}
             </div>
             <div className="card-body text-light d-flex flex-column position-relative bg-dark p-0">
                 <img
@@ -75,8 +79,8 @@ const CommonEventCard = ({ eventDetails, editable, editAction, viewAction }) => 
                     className="position-absolute top-0 start-0 m-0 text-light px-2 py-1"
                     style={{ background: "rgba(0, 0, 0, 0.5)", height: "220px" }}
                 >
-                    <div className="fw-bold text-center mt-1" style={{ fontSize: "1.0rem" }}>
-                        {eventDetails.date}
+                   <div className="fw-bold text-center mt-1" style={{ fontSize: "1.0rem" }}>
+                        {formattedDate(eventDetails.date)}
                     </div>
 
                     <div className="mt-1 fw-bold" style={{ fontSize: "0.8rem" }}>
@@ -92,7 +96,7 @@ const CommonEventCard = ({ eventDetails, editable, editAction, viewAction }) => 
                     <div className="mt-1 fw-bold" style={{ fontSize: "0.8rem" }}>
                         Event Link
                     </div>
-                    <div style={{ fontSize: "0.7rem" }}> {eventDetails.eventLink}</div>
+                    <div style={{ fontSize: "0.7rem" }}>  <a href={eventDetails.eventLink}><img src={EventIcon} width="25" alt="" /></a> </div>
                     {/* <div className="d-flex py-0 mt-0">
                         <button className="bg-transparent border-0 d-flex" onClick={""}>
                             <img src={CopyToClipboardIcon} width={20} alt="Copy" />
@@ -105,7 +109,7 @@ const CommonEventCard = ({ eventDetails, editable, editAction, viewAction }) => 
                 )}
             </div>
             <div className="card-footer d-flex">
-                <div className="fw-bold">{eventDetails.projectName}</div>
+                <div className="fw-bold">{eventDetails.eventName}</div>
                 <div className="ms-auto me-1">
                     <button
                         className="bg-transparent border-0"
@@ -128,6 +132,7 @@ const CommonEventCard = ({ eventDetails, editable, editAction, viewAction }) => 
             {/* Modal to show event details */}
             <ViewEventModal
                 show={viewEventModalShow}
+                formattedDate={formattedDate}
                 onHide={handleCloseViewEventModal}
                 eventData={selectedEvent} // Pass selected event data
             />

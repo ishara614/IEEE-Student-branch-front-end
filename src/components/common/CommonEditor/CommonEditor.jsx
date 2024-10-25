@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Editor } from "react-draft-wysiwyg";
-import { convertToHTML, convertFromHTML } from "draft-convert";
+import { convertToHTML } from "draft-convert";
 import { EditorState, ContentState } from "draft-js";
 import { convertFromHTML as draftConvertFromHTML } from 'draft-js'; // Import from draft-js
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -14,7 +14,6 @@ const CommonEditor = ({ setHtml, html, updateProject }) => {
 
     useEffect(() => {
         if (html) {
-            // Use draft-js's convertFromHTML to get content blocks
             const blocksFromHTML = draftConvertFromHTML(html);
             const contentState = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
             setEditorState(EditorState.createWithContent(contentState));
@@ -23,10 +22,15 @@ const CommonEditor = ({ setHtml, html, updateProject }) => {
 
     const onEditorStateChange = (state) => {
         setEditorState(state);
-        const contentState = state.getCurrentContent();
+    };
+
+    const saveHtmlContent = useCallback(() => {
+        const contentState = editorState.getCurrentContent();
         const htmlContent = convertToHTML(contentState);
         setHtml(htmlContent);
-    };
+        updateProject(htmlContent);
+        setEditMode(false);
+    }, [editorState, setHtml, updateProject]);
 
     return (
         <>
@@ -34,14 +38,13 @@ const CommonEditor = ({ setHtml, html, updateProject }) => {
                 <div className='d-flex justify-content-end w-100'>
                     {
                         editMode ? (
-                            <button className='border-0 bg-transparent' onClick={() => {
-                                updateProject(),
-                                    setEditMode(false)
-                            }}>
-                                <img src={save} width={25} />
+                            <button className='border-0 bg-transparent' onClick={saveHtmlContent}>
+                                <img src={save} width={25} alt="Save" />
                             </button>
                         ) : (
-                            <button className='border-0 bg-transparent' onClick={() => { setEditMode(true) }}><img src={edit} width={25} /></button>
+                            <button className='border-0 bg-transparent' onClick={() => setEditMode(true)}>
+                                <img src={edit} width={25} alt="Edit" />
+                            </button>
                         )
                     }
                 </div>
@@ -56,15 +59,12 @@ const CommonEditor = ({ setHtml, html, updateProject }) => {
                             toolbar={toolbar}
                         />
                     ) : (
-                        <p className="text-secondary text-wrap" dangerouslySetInnerHTML={{
-                            __html: html,
-                        }}>
-                        </p>
+                        <p className="text-wrap" dangerouslySetInnerHTML={{ __html: html }} />
                     )
                 }
             </div>
         </>
     );
-}
+};
 
 export default CommonEditor;

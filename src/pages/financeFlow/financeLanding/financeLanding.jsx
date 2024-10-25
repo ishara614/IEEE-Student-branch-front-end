@@ -12,6 +12,7 @@ import CommonLoader from '../../../components/common/commonLoader/commonLoader'
 import { PolicyValidate } from '../../../utils/valitations/Valitation'
 import { getAllAccount } from '../../../redux/actions/account'
 import { getAllOuWallet, getMainWallet, getMyExomWallet } from '../../../redux/actions/wallet'
+import { getAccountBalance, getWalletBalance } from '../../../redux/actions/transection'
 
 
 
@@ -32,8 +33,13 @@ const FinanceLanding = () => {
     const [ouWallets, setOuWallets] = useState([]);
     const [myWallet, setMyWallet] = useState(null);
     const [selectedWallet, setSelectedWallet] = useState(null);
+    const [refresh, setRefresh] = useState(0);
     const [mainWallet, setMainWallet] = useState([]);
     const [isAccountMode, setIsAccountMode] = useState(false);
+    const [mainBalance, setMainBalance] = useState(0);
+    const [creditBalance, setCreditBalancee] = useState(0);
+    const [debitBalance, setDebitBalance] = useState(0);
+
 
 
     useEffect(() => {
@@ -57,6 +63,28 @@ const FinanceLanding = () => {
             }
         }
     }, [userData])
+
+
+    useEffect(() => {
+        if (isAccountMode) {
+            getAccountBalance(selectedWallet, (res) => {
+                if (res?.status == 200) {
+                    setMainBalance(res?.data?.data?.main_balance)
+                    setCreditBalancee(res?.data?.data?.credit_balance)
+                    setDebitBalance(res?.data?.data?.debit_balance)
+                }
+            })
+        } else {
+            getWalletBalance(selectedWallet, (res) => {
+                if (res?.status == 200) {
+                    setMainBalance(res?.data?.data?.main_balance)
+                    setCreditBalancee(res?.data?.data?.credit_balance)
+                    setDebitBalance(res?.data?.data?.debit_balance)
+                }
+            })
+        }
+
+    }, [selectedWallet, isAccountMode, refresh])
 
 
 
@@ -113,7 +141,7 @@ const FinanceLanding = () => {
     };
 
     const handleAccountChange = (event) => {
-        if(event.target.checked){
+        if (event.target.checked) {
             setSelectedWallet(accounts[0]?.id)
         }
         setIsAccountMode(event.target.checked);
@@ -242,26 +270,26 @@ const FinanceLanding = () => {
                         }
 
                         <div className='flex-grow-1'>
-                            <FinanceChart account={isAccountMode} selectedWallet={selectedWallet} />
+                            <FinanceChart refresh={refresh} account={isAccountMode} selectedWallet={selectedWallet} />
                         </div>
                     </div>
 
                     <div className='d-flex justify-content-center justify-content-lg-between align-items-center flex-wrap gap-3 mt-5'>
-                        <CommonBalanceCard wallet={true} text={"Wallet Balance"} amount={"5,680.00"} />
-                        <CommonBalanceCard text={"Income"} amount={"5,680.00"} />
-                        <CommonBalanceCard text={"Expense"} amount={"2,000.00"} />
+                        <CommonBalanceCard wallet={true} text={"Wallet Balance"} amount={parseFloat(mainBalance).toFixed(1)} />
+                        <CommonBalanceCard text={"Income"} amount={parseFloat(debitBalance).toFixed(1)} />
+                        <CommonBalanceCard text={"Expense"} amount={parseFloat(creditBalance).toFixed(1)} />
                     </div>
 
                     <div className='mt-5 d-flex justify-content-between align-items-center gap-4 flex-wrap'>
                         <div className='text-cl-primary'>Accounts</div>
                         <div className='d-flex justify-content-end gap-4'>
-                            {
+                            {/* {
                                 isFinanceBudgetPolicyAvailable && (
                                     <div>
                                         <CommonButton text={"Go to proposal"} onClick={() => { navigateToProposal() }} />
                                     </div>
                                 )
-                            }
+                            } */}
 
 
                             {
@@ -279,13 +307,13 @@ const FinanceLanding = () => {
                     </div>
 
                     <div className='mt-4'>
-                        <CommonFinanceTable account={isAccountMode} selectedWallet={selectedWallet} />
+                        <CommonFinanceTable refresh={refresh} account={isAccountMode} selectedWallet={selectedWallet} />
                     </div>
                 </div>
             )}
 
 
-            <AddTransectionModel show={transectionModelShow} onHide={handleCloseTransectionModel} setTransectionModelShow={setTransectionModelShow} />
+            <AddTransectionModel show={transectionModelShow} onHide={handleCloseTransectionModel} setTransectionModelShow={setTransectionModelShow} refresh={refresh} setRefresh={setRefresh} />
             <AddBankAccountModel show={addBankModelShow} onHide={handleCloseAddBankModel} disabled={disable} editable={editable} item={selectedAccount} change={getAllAccounts} />
         </>
     )

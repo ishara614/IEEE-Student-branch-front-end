@@ -74,3 +74,38 @@ export const getAccountTransection = (account_id, search, page, type, start_date
         callback(error.response);
     }
 };
+
+
+export const getWalletBalance = (wallet_id, callback) => {
+    const endpoint = `${import.meta.env.VITE_API_HOST}transaction/wallet_balance/${wallet_id}`;
+
+    try {
+        http
+            .get(endpoint)
+            .then((response) => {
+                callback(response);
+            })
+            .catch((error) => {
+                callback(error.response);
+            });
+    } catch (error) {
+        callback(error.response);
+    }
+};
+
+export const getAccountBalance = (account_id, callback) => {
+    const endpoint = `${import.meta.env.VITE_API_HOST}transaction/account_balance/${account_id}`;
+
+    try {
+        http
+            .get(endpoint)
+            .then((response) => {
+                callback(response);
+            })
+            .catch((error) => {
+                callback(error.response);
+            });
+    } catch (error) {
+        callback(error.response);
+    }
+};

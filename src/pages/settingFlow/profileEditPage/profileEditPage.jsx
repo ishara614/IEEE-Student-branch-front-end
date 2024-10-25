@@ -218,6 +218,7 @@ const ProfileEditPage = () => {
             if (res?.status === 200) {
                 console.log(res, "User updated successfully:");
                 setIsEditable(false);
+                window.location.reload();
             } else {
                 console.log(res, "User Update Failed.");
             }

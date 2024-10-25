@@ -16,15 +16,15 @@ const UpcommingEventsPage = () => {
       console.log("res in event", res?.data?.data?.content);
       if (res.status == 201) {
         let data = res?.data?.data?.content?.map(
-          ({ eventID, eventName, eventLink,image, date, venue, description, project }) => ({
+          ({ eventID,project , eventLink,image, date, venue, description,eventName }) => ({
             id: eventID,
-            eventName: eventName,
+            projectName: project?.projectName,
             eventLink: eventLink,
             image: image,
             date: date,
             venue: venue,
             description: description,
-            projectName: project?.projectName,
+            eventName: eventName,
           })
         );
         // console.warn(data);

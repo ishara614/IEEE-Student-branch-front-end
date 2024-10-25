@@ -9,12 +9,15 @@ import { useNavigate } from "react-router-dom";
 import ProjectModel from "../../../components/models/projectModel/projectModel";
 import { useSelector } from "react-redux";
 import CommonLoader from "../../../components/common/commonLoader/commonLoader";
-import { deleteProject, getAllProject, getProjectCount } from "../../../redux/actions/project";
+import {
+  deleteProject,
+  getAllProject,
+  getProjectCount,
+} from "../../../redux/actions/project";
 import { getAllOU } from "../../../redux/actions/ou";
 import { getAllTermYear } from "../../../redux/actions/termYear";
 import CommonDeleteModel from "../../../components/models/commonDeleteModel/commonDeleteModel";
 import { PolicyValidate } from "../../../utils/valitations/Valitation";
-
 
 const ProjectLandingPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,12 +45,14 @@ const ProjectLandingPage = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setdeleteError] = useState(false);
 
-
   useEffect(() => {
     setPageLoading(true);
     if (userData) {
       const isProjectAvailable = PolicyValidate(userData, "PROJECT");
-      const isProjectTimelineAvailable = PolicyValidate(userData, "PROJECT_TIME");
+      const isProjectTimelineAvailable = PolicyValidate(
+        userData,
+        "PROJECT_TIME"
+      );
 
       setIsProjectTimelineAvailable(isProjectTimelineAvailable);
       setProjectPolicy(isProjectAvailable);
@@ -82,19 +87,16 @@ const ProjectLandingPage = () => {
   function handleDeleteProject() {
     setdeleteError(false);
     setDeleteLoading(true);
-    deleteProject(selectedProject?.projectID,
-      (res) => {
-        if (res?.status == 200) {
-          handleCloseDeleteModel();
-          setRefreshTable(refreshTable + 1);
-          setDeleteLoading(false);
-        } else {
-          setDeleteLoading(false);
-          setdeleteError(true);
-        }
+    deleteProject(selectedProject?.projectID, (res) => {
+      if (res?.status == 200) {
+        handleCloseDeleteModel();
+        setRefreshTable(refreshTable + 1);
+        setDeleteLoading(false);
+      } else {
+        setDeleteLoading(false);
+        setdeleteError(true);
       }
-    )
-
+    });
   }
 
   function navigateToProject(id) {
@@ -161,7 +163,7 @@ const ProjectLandingPage = () => {
           });
 
           SetProjectData(data);
-          setTotalPage(res?.data?.data?.totalPages)
+          setTotalPage(res?.data?.data?.totalPages);
           setLoader(false);
         }
       }
@@ -174,12 +176,12 @@ const ProjectLandingPage = () => {
   }
 
   useEffect(() => {
-    getProjectCount("", "", "", (res) => {
+    getProjectCount("", selectedYear, selectedOU, (res) => {
       if (res.status == 200) {
         setCountData(res?.data?.data);
       }
     });
-  }, []);
+  }, [selectedOU, selectedYear]);
 
   const handleStatusChange = (e) => {
     setStatus(e.target.value);
@@ -208,7 +210,7 @@ const ProjectLandingPage = () => {
   };
 
   const handleYearChange = (e) => {
-    console.warn(e.target.value)
+    console.warn(e.target.value);
     setSelectedYear(e.target.value);
     // setCurrentPage(1);
   };
@@ -293,7 +295,6 @@ const ProjectLandingPage = () => {
                   </div>
                 </button>
               ) : null}
-
             </div>
 
             {projectPolicy ? (
@@ -341,7 +342,6 @@ const ProjectLandingPage = () => {
                   editAction={(project) => {
                     editProject(project);
                   }}
-
                   deleteAction={(project) => {
                     handleOpenDeleteModel(project);
                   }}
@@ -349,7 +349,9 @@ const ProjectLandingPage = () => {
               </div>
               <div className="mt-4 d-flex justify-content-end">
                 <CommonPagination
-                  pages={totalPage} currentPage={currentPage} setCurrentPage={setCurrentPage}
+                  pages={totalPage}
+                  currentPage={currentPage}
+                  setCurrentPage={setCurrentPage}
                 />
               </div>
             </div>
